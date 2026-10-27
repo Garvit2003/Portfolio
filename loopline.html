@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Loopline Support AI — Garvit Joshi</title>
+<meta name="description" content="Five candidate AI capabilities for a B2B SaaS support desk, classified Skill / Agent / Neither. Two built, two refused, one agent tested until it broke.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: single column. Worked decisions lead — the cases are the argument. */
+:root{
+  --bg:#F6F7F6; --surface:#FFFFFF; --sunk:#EDEFEE;
+  --fg:#15191B; --muted:#5D6668; --faint:#8D9699;
+  --line:#DCE0DF; --line-strong:#C3C9C7;
+  --accent:#1C6B63; --accent-soft:#E2EFED;
+  --signal:#A8611A; --signal-soft:#F7EBDC;
+  --crit:#9C3024; --crit-soft:#F8E6E3;
+  --ok:#2F6B3A;
+  --display:'Archivo',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#101413; --surface:#171C1B; --sunk:#1D2322;
+  --fg:#E8EDEB; --muted:#9AA4A2; --faint:#6E7877;
+  --line:#272E2D; --line-strong:#39423F;
+  --accent:#64BFB2; --accent-soft:#17302D;
+  --signal:#D99A50; --signal-soft:#2E2518;
+  --crit:#E08476; --crit-soft:#331D19;
+  --ok:#72B47F;
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+html,body{margin:0}
+img{max-width:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--display);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:34px 72px}
+h1,h2,h3{text-wrap:balance;margin:0;font-weight:600;letter-spacing:-0.015em}
+h1{font-size:clamp(28px,6vw,40px);line-height:1.1;font-weight:700}
+h2{font-size:clamp(19px,3.4vw,23px);line-height:1.2}
+h3{font-size:15px}
+p{margin:0}
+a{color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:500}
+.lede{color:var(--muted);max-width:62ch;font-size:16px}
+.stack{display:flex;flex-direction:column;gap:14px}
+section{margin-top:52px}
+.back{font-family:var(--mono);font-size:12px;color:var(--muted);text-decoration:none;display:inline-block;margin-bottom:22px}
+.back:hover{color:var(--accent)}
+.srcline{font-family:var(--mono);font-size:12px;color:var(--faint);display:flex;flex-wrap:wrap;gap:6px 14px}
+.srcline span{white-space:nowrap}
+
+/* spec panel */
+.spec{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.spec-row{display:flex;gap:12px;align-items:flex-start;min-width:0}
+.spec-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);flex:none;width:104px;padding-top:3px}
+.spec-v{font-size:14px;color:var(--muted);line-height:1.6;min-width:0}
+.spec-v b{color:var(--fg);font-weight:600}
+.spec-v code,.tax{font-family:var(--mono);font-size:12.5px;color:var(--fg)}
+.tax{display:block;background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:9px 11px;line-height:1.7;overflow-wrap:break-word}
+
+/* decision cards */
+.cases{display:flex;flex-direction:column;gap:16px}
+.case{border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.case-why{padding:10px 14px;background:var(--sunk);border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ticket{padding:14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12.5px;line-height:1.65;color:var(--muted);white-space:pre-wrap;overflow-wrap:break-word}
+.decision{background:var(--sunk)}
+.dec-flag{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12.5px;line-height:1.5}
+.dec-flag.clear{background:var(--accent-soft);color:var(--fg)}
+.dec-flag.esc{background:var(--crit-soft);color:var(--fg)}
+.dec-badge{font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:10.5px;padding:3px 7px;border-radius:4px;white-space:nowrap;flex:none;margin-top:1px}
+.clear .dec-badge{background:var(--ok);color:var(--bg)}
+.esc .dec-badge{background:var(--crit);color:var(--bg)}
+.dec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:1px;background:var(--line)}
+.dec-cell{background:var(--surface);padding:11px 14px;min-width:0}
+.dec-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.dec-v{font-family:var(--mono);font-size:14px;font-weight:500;margin-top:3px;word-break:break-word}
+.dec-v.gap{color:var(--signal)}
+.dec-why{padding:12px 14px;border-top:1px solid var(--line);background:var(--surface);font-size:13.5px;color:var(--muted);line-height:1.6}
+.dec-why b{color:var(--fg);font-weight:600}
+.dec-tone{padding:10px 14px;border-top:1px solid var(--line);background:var(--signal-soft);font-family:var(--mono);font-size:12px;line-height:1.55;color:var(--fg)}
+
+/* framework */
+.tests{display:grid;grid-template-columns:repeat(auto-fit,minmax(236px,1fr));gap:12px}
+.test{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:15px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.test h3{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.test p{font-size:13.5px;color:var(--muted);line-height:1.55}
+.test .q{font-size:13.5px;color:var(--fg);border-left:2px solid var(--line-strong);padding-left:10px}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);font-weight:500}
+tr:last-child td{border-bottom:0}
+td.verdict{font-family:var(--mono);font-size:12px;font-weight:600;white-space:nowrap}
+.v-skill{color:var(--accent)}
+.v-agent{color:var(--signal)}
+.v-neither{color:var(--faint)}
+td.why{color:var(--muted);line-height:1.55}
+
+.refusals{display:grid;grid-template-columns:repeat(auto-fit,minmax(252px,1fr));gap:12px}
+.refusal{border:1px solid var(--line);border-left:3px solid var(--line-strong);border-radius:0 9px 9px 0;background:var(--surface);padding:15px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.refusal h3{font-size:14px}
+.refusal p{font-size:13.5px;color:var(--muted);line-height:1.58}
+.refusal .verdict-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+
+pre.out{margin:0;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:13px 14px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7}
+pre.out .k{color:var(--accent)}
+pre.out .n{color:var(--signal)}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:15px;font-size:13.5px;color:var(--muted);line-height:1.6}
+.note b{color:var(--fg);font-weight:600}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--faint);line-height:1.65}
+footer code{font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a class="back" href="./">&larr; Garvit Joshi</a>
+
+<header class="stack">
+  <p class="eyebrow">Skill / Agent / Neither</p>
+  <h1>Loopline Support AI</h1>
+  <p class="lede">Five candidate AI capabilities for a B2B SaaS support desk. I wrote the test for what deserved to be built before building anything — then shipped three and declined two.</p>
+  <div class="srcline">
+    <span>Loopline is a fictional company</span>
+    <span>~2,400 customers · ~600 tickets/week · 15 agents</span>
+  </div>
+</header>
+
+<section class="stack">
+  <p class="eyebrow">Skill 1</p>
+  <h2>ticket-triage-router</h2>
+  <div class="spec">
+    <div class="spec-row"><span class="spec-k">Contract</span><span class="spec-v">One ticket in, one routing decision out. No state between invocations.</span></div>
+    <div class="spec-row"><span class="spec-k">Procedure</span><span class="spec-v">Check escalation triggers <b>first</b>, in strict precedence order — <code>trust_safety &gt; security &gt; legal &gt; outage</code> — before any category or priority judgment.</span></div>
+    <div class="spec-row"><span class="spec-k">Hard rule</span><span class="spec-v"><b>Escalation flags trigger on substance, never on tone or profanity alone.</b></span></div>
+    <div class="spec-row"><span class="spec-k">Taxonomy</span><span class="spec-v"><span class="tax">billing · account_access · data_import · integrations · performance · bug_report · feature_request · onboarding · <b>taxonomy_gap</b></span></span></div>
+  </div>
+  <p class="lede">Four tickets, chosen because each one tests a different rule.</p>
+
+  <div class="cases">
+
+    <div class="case">
+      <p class="case-why">Case 1 — the ordinary one</p>
+      <div class="ticket">Subject: Charged twice for October
+
+Hi — our invoice INV-20418 shows two charges of $490 on the same date. We only have one subscription. Can you refund the duplicate? Account is on the Growth plan.</div>
+      <div class="decision">
+        <div class="dec-flag clear"><span class="dec-badge">No escalation</span><span>Checked trust_safety &rarr; security &rarr; legal &rarr; outage in order. No substantive trigger present.</span></div>
+        <div class="dec-grid">
+          <div class="dec-cell"><div class="dec-k">Category</div><div class="dec-v">billing</div></div>
+          <div class="dec-cell"><div class="dec-k">Priority</div><div class="dec-v">P2</div></div>
+          <div class="dec-cell"><div class="dec-k">Queue</div><div class="dec-v">billing-tier1</div></div>
+        </div>
+        <div class="dec-why"><b>Reasoning.</b> A duplicate charge on a single invoice is a billing correction with a known remedy. No data exposure, no legal demand, no service interruption. Routine queue, standard SLA.</div>
+      </div>
+    </div>
+
+    <div class="case">
+      <p class="case-why">Case 2 — hostile, but nothing to escalate</p>
+      <div class="ticket">Subject: THIRD TIME ASKING
+
+This is absolutely ridiculous. I have now emailed three times about the Jira sync dropping subtasks and nobody has bothered to reply. Your product is garbage and your support is worse. Someone fix this today or we are gone.</div>
+      <div class="decision">
+        <div class="dec-flag clear"><span class="dec-badge">No escalation</span><span>No trigger in any of the four categories. Churn language is not an escalation trigger.</span></div>
+        <div class="dec-grid">
+          <div class="dec-cell"><div class="dec-k">Category</div><div class="dec-v">integrations</div></div>
+          <div class="dec-cell"><div class="dec-k">Priority</div><div class="dec-v">P1</div></div>
+          <div class="dec-cell"><div class="dec-k">Queue</div><div class="dec-v">integrations-tier2</div></div>
+        </div>
+        <div class="dec-why"><b>Reasoning.</b> A reproducible data-loss bug in the Jira sync, with three unanswered contacts behind it. P1 comes from the defect and the contact history, not from the tone.</div>
+        <div class="dec-tone">Tone noted, not escalated: the ticket is abusive and threatens churn, which changes how an agent should open the reply — it does not change where the ticket goes.</div>
+      </div>
+    </div>
+
+    <div class="case">
+      <p class="case-why">Case 3 — the one tone-based routing misses</p>
+      <div class="ticket">Subject: quick question about sharing
+
+Hey, loving the tool. Minor thing — when I opened a shared board link from my personal email (not my work account, not invited to the workspace) it loaded the full board including the client budget column. Is that expected? Not a big deal, just seemed odd.</div>
+      <div class="decision">
+        <div class="dec-flag esc"><span class="dec-badge">Escalate &middot; security</span><span>trust_safety: no. <b>security: yes</b> — stop here. Unauthorised access to workspace data by an uninvited account.</span></div>
+        <div class="dec-grid">
+          <div class="dec-cell"><div class="dec-k">Category</div><div class="dec-v">account_access</div></div>
+          <div class="dec-cell"><div class="dec-k">Priority</div><div class="dec-v">P0</div></div>
+          <div class="dec-cell"><div class="dec-k">Queue</div><div class="dec-v">security-incident</div></div>
+        </div>
+        <div class="dec-why"><b>Reasoning.</b> The reporter is describing a sharing-permission failure that exposed client financial data to an account with no workspace membership. They do not appear to realise what they have found, which is why the ticket reads as casual. Substance governs — this is a P0 security escalation arriving in a friendly email.</div>
+      </div>
+    </div>
+
+    <div class="case">
+      <p class="case-why">Case 4 — outside the taxonomy</p>
+      <div class="ticket">Subject: SOC 2 report for procurement
+
+Our procurement team needs your current SOC 2 Type II report and a completed security questionnaire before we can renew. Who do I contact for that? Renewal date is the 30th.</div>
+      <div class="decision">
+        <div class="dec-flag clear"><span class="dec-badge">No escalation</span><span>A vendor-assurance request is not a legal demand. No trigger fires.</span></div>
+        <div class="dec-grid">
+          <div class="dec-cell"><div class="dec-k">Category</div><div class="dec-v gap">taxonomy_gap</div></div>
+          <div class="dec-cell"><div class="dec-k">Priority</div><div class="dec-v">P2</div></div>
+          <div class="dec-cell"><div class="dec-k">Queue</div><div class="dec-v">triage-manual</div></div>
+        </div>
+        <div class="dec-why"><b>Reasoning.</b> Compliance documentation for a renewal fits none of the eight categories. Forcing it into <code>account_access</code> or <code>onboarding</code> would route it to a queue that cannot action it. Returning <code>taxonomy_gap</code> sends it to manual triage and records that the taxonomy has a hole — if this fires often, that is a product input, not an error.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="note"><b>Why an escape hatch.</b> A model asked to pick a category will always pick one. Without <code>taxonomy_gap</code> it forces a bad fit, the ticket lands in a queue that cannot help, and nobody learns the list was incomplete. The escape hatch turns a silent misroute into a visible signal.</div>
+</section>
+
+<section class="stack">
+  <p class="eyebrow">The classification test</p>
+  <h2>What decides Skill, Agent, or Neither</h2>
+  <p class="lede">The mapping is not an even split. Two land on Skill, one on Agent, two on Neither — where the reasoning took each one.</p>
+  <div class="tests">
+    <div class="test">
+      <h3>Skill</h3>
+      <p class="q">Does it hold anything between two separate invocations? If no, it's a Skill.</p>
+      <p>One bounded input to one bounded output, same shape every run. A packaged instruction set reached for inside one turn of someone else's loop.</p>
+    </div>
+    <div class="test">
+      <h3>Agent</h3>
+      <p class="q">Loops over a workload, holds state across the loop, has memory across runs — all three, together.</p>
+      <p>Justify agent-ness by pointing at these three properties directly, not by how hard the task sounds. An agent <em>is</em> the loop.</p>
+    </div>
+    <div class="test">
+      <h3>Neither</h3>
+      <p class="q">Remove the AI and ask what's left.</p>
+      <p>If most of the engineering work remains — the API call, the idempotency key, the audit log, the authorization check — it is not an AI capability. Neither is a legitimate answer, not a cop-out.</p>
+    </div>
+  </div>
+</section>
+
+<section class="stack">
+  <p class="eyebrow">The mapping</p>
+  <h2>Five capabilities</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Capability</th><th>Verdict</th><th>Why it lands there</th></tr></thead>
+      <tbody>
+        <tr><td>Ticket triage &amp; routing</td><td class="verdict v-skill">Skill</td><td class="why">One ticket in, one decision out. Nothing carries to the next invocation.</td></tr>
+        <tr><td>Policy-safe reply drafting</td><td class="verdict v-skill">Skill</td><td class="why">Ticket plus policy doc in, draft reply out, every number traceable to a policy line. <code>requires_human_judgment: true</code> is a correct output, not a failure.</td></tr>
+        <tr><td>Weekly QA review of closed tickets</td><td class="verdict v-agent">Agent</td><td class="why">Samples tickets, grades each, trends against three prior weeks. All three properties hold — and only because the deliverable is a trended multi-week summary.</td></tr>
+        <tr><td>Auto-issuing refunds and credits</td><td class="verdict v-neither">Neither</td><td class="why">Payments engineering wearing an AI costume.</td></tr>
+        <tr><td>Proactive outage notification</td><td class="verdict v-neither">Neither</td><td class="why">Event-driven plumbing between two systems that have already decided everything.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="stack">
+  <p class="eyebrow">The two refusals</p>
+  <h2>What this declined to build</h2>
+  <div class="refusals">
+    <div class="refusal">
+      <span class="verdict-tag">Capability 4 — Neither</span>
+      <h3>Auto-issuing a refund</h3>
+      <p>Remove the AI and nearly everything is left: the Stripe call, the idempotency key, the double-entry ledger write, the audit trail, the reconciliation job. The one reasoning sliver is already covered by the reply drafter. This is a payments-engineering project.</p>
+    </div>
+    <div class="refusal">
+      <span class="verdict-tag">Capability 5 — Neither</span>
+      <h3>Proactive outage notification</h3>
+      <p>The two things a Skill would decide — is this customer-facing, and who is affected — are both already decided upstream, by an incident commander and by the monitoring system's own scope data. If wording quality matters, that is a one-time copywriting task for the template, not a reason to run inference per incident.</p>
+    </div>
+  </div>
+  <div class="note">Capabilities 4 and 5 could look like Agent candidates — "loop over affected customers" — right up until you ask what judgment is happening inside that loop. None, once you look closely.</div>
+</section>
+
+<section class="stack">
+  <p class="eyebrow">Test evidence</p>
+  <h2>The agent ran, and one test broke it</h2>
+  <p class="lede">Selection and aggregation are deterministic code with no model involved; grading is per-ticket judgment where every tag cites the transcript line justifying it. Eight fixture tickets, four carrying a seeded reply defect.</p>
+  <pre class="out"><span class="k">"sample_size"</span>: <span class="n">8</span>,  <span class="k">"mean_score"</span>: <span class="n">14.38</span>,  <span class="k">"verdicts"</span>: { <span class="k">"pass"</span>: <span class="n">4</span>, <span class="k">"fail"</span>: <span class="n">4</span> }
+<span class="k">"tag_rates"</span>: { <span class="k">"escalation_missed"</span>: <span class="n">25.0</span>, <span class="k">"excessive_apology"</span>: <span class="n">25.0</span>, <span class="k">"policy_figure_unsourced"</span>: <span class="n">12.5</span> }</pre>
+  <div class="note"><b>The defect.</b> Forcing one grade record to <code>grade_status: failed</code> mid-batch — the deliberate check that one bad ticket doesn't kill the run — crashed the script with <code>KeyError: 'verdict'</code>, because it assumed every record had a verdict, which a failed-grading record doesn't by design. Fixed by excluding failed records from the verdict count. Re-run gave <code>graded: 7</code>, <code>grade_failed: 1</code>, mean recomputed over the seven completed grades, batch completed instead of crashing.</div>
+  <div class="note"><b>What the evidence does not prove.</b> The three prior weeks in the history file are seeded fixture state, not real prior agent runs — Loopline is fictional. They exist to exercise the memory-across-runs property with genuine math, and are disclosed here rather than presented as real data. Trend classification uses rate, not raw count, so weeks with different sample sizes stay comparable.</div>
+</section>
+
+<footer>
+  Built as a portfolio deliverable for an AI product management programme. The decisions above are worked examples of the submitted <code>ticket-triage-router</code> specification. Every ticket, customer and figure on this page is fictional. The Skills, the Agent and its test harness are my own; this page's front end was built with AI assistance.
+</footer>
+
+</div>
+</body>
+</html>
