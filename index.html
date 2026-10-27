@@ -200,6 +200,17 @@ body.audit .flag .c{color:var(--ink)}
 .stp{font-family:var(--f-mono);font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap;border:1px solid currentColor}
 .stp.live{color:var(--t-work)}.stp.dev{color:var(--t-target)}.stp.draft{color:var(--t-cited)}
 .stp.esc{color:var(--t-gap)}.stp.gapv{color:var(--t-target)}
+.vq{display:grid;gap:14px}
+.vq .qq{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start}
+.vq .qn{font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--accent);padding-top:4px}
+.vq .qt{font-size:16.5px;margin:0}
+.vq .qa{margin:7px 0 0;padding-left:13px;border-left:2px solid var(--rule);color:var(--muted);font-size:15.5px}
+.vq .qa b{color:var(--ink)}
+.gateline{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);border:1px dashed var(--rule);border-radius:6px;padding:10px 12px;margin-top:4px}
+.runout{min-height:0;padding:12px 14px}
+.runout pre{font-size:12.5px;line-height:1.75;white-space:pre-wrap;overflow-wrap:break-word}
+.runout .kk{color:var(--code-key)}.runout .nn{color:var(--code-str)}
+.brief{font-family:var(--f-mono);font-size:13.5px;line-height:1.65;color:var(--muted);background:var(--sunk);border-radius:6px;padding:11px 13px;margin:0 0 14px}
 .syspre{max-height:320px;overflow:auto;border:0;border-radius:0;min-height:0}
 .syspre pre{white-space:pre-wrap;overflow-wrap:break-word}
 .pcopy{font-family:var(--f-mono);font-size:11.5px;font-weight:600;padding:4px 11px;border-radius:99px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
@@ -526,6 +537,12 @@ footer h2{font-size:clamp(36px,5.4vw,66px)}
             <div class="row"><dt>Tested</dt><dd>Reproducibility (same seed, byte-identical output), idempotency, an empty week, and a forced failure that <span class="c" data-t="work" data-src="A record forced to grade_status: failed crashed the batch with KeyError: 'verdict'. Fixed, re-run, disclosed in the submission.">surfaced a real <code>KeyError</code>, which I fixed</span> and disclosed.</dd></div>
             <div class="row"><dt>Refused</dt><dd>Two of the five. Auto-refunds are payments engineering: idempotency keys, ledger writes, reconciliation. Outage notices are already decided upstream by a human incident commander.</dd></div>
             <div class="row"><dt>Disclosed</dt><dd><span class="c" data-t="gap" data-src="The three 'prior weeks' in the history file are seeded fixtures, used to exercise memory-across-runs with real math. Disclosed in the document.">The agent's "prior weeks" are seeded fixtures, not real history</span>, because the company is fictional.</dd></div>
+                      <div class="demo" style="margin-top:4px">
+              <div class="demo-head"><b>What the run actually printed</b><small>Eight fixture tickets, four seeded with a defect</small></div>
+              <div class="pane runout"><pre><span class="kk">"sample_size"</span>: <span class="nn">8</span>   <span class="kk">"mean_score"</span>: <span class="nn">14.38</span>   <span class="kk">"verdicts"</span>: { <span class="kk">"pass"</span>: <span class="nn">4</span>, <span class="kk">"fail"</span>: <span class="nn">4</span> }
+<span class="kk">"tag_rates"</span>: { <span class="kk">"escalation_missed"</span>: <span class="nn">25.0</span>, <span class="kk">"excessive_apology"</span>: <span class="nn">25.0</span>, <span class="kk">"policy_figure_unsourced"</span>: <span class="nn">12.5</span> }</pre></div>
+              <p class="gateline" style="margin:12px 14px 14px">Then the failure test: one record forced to <code>grade_status: failed</code> crashed the batch with <code>KeyError: 'verdict'</code>. The script assumed every record has a verdict; a failed-grading record doesn&rsquo;t, by design. Fixed to exclude failed records from the count &mdash; re-run gave <code>graded: 7</code>, <code>grade_failed: 1</code>, mean recomputed over the seven, batch completed.</p>
+            </div>
           </dl>
         </div>
       </article>
@@ -537,6 +554,36 @@ footer h2{font-size:clamp(36px,5.4vw,66px)}
           <p>I wrote a reusable system prompt that turns an LLM into a PRD writer, then used it unedited to specify <b>Vault Advisor</b>, a grounded assistant for the deposit journeys I work on. It informs but never transacts. It never recommends a product, tenure or amount, because that crosses into investment advice.</p>
         </div>
         <div class="file-body">
+          <div class="demo">
+            <div class="demo-head"><b>The gate holding</b><small>A real run, start to stop</small></div>
+            <div class="demo-body">
+              <p class="brief">Brief given: a saved-views feature for a project management tool &mdash; let people save a filtered board configuration and share it with their team.</p>
+              <div class="vq">
+                <div class="qq"><span class="qn">01</span><div><p class="qt">Who is the primary user of a saved view &mdash; the person who creates it, or the teammates who receive it?</p><p class="qa"><b>Creator.</b> Sharing is a fast-follow, not v1.</p></div></div>
+                <div class="qq"><span class="qn">02</span><div><p class="qt">Do you have a measured baseline for how often people re-apply the same filters, or would that have to be instrumented first?</p><p class="qa"><b>No baseline.</b> Filter application isn&rsquo;t instrumented at all today.</p></div></div>
+                <div class="qq"><span class="qn">03</span><div><p class="qt">What happens to a shared view when the recipient lacks permission to see some of the items inside it?</p><p class="qa"><b>Undecided.</b> Nobody has ruled on it.</p></div></div>
+              </div>
+              <p class="gateline">After asking, STOP. Do not draft anything else in this turn.</p>
+            </div>
+          </div>
+          <div class="demo">
+            <div class="demo-head"><b>What those answers did to the document</b><small>Three answers, three different effects</small></div>
+            <div class="demo-body">
+              <table class="ledger">
+                <thead><tr><th>Success metric</th><th>Baseline</th><th>Target</th></tr></thead>
+                <tbody>
+                  <tr><td>Time to the view the user wanted</td><td><span class="chip k-gap">[TBD &mdash; analytics lead]</span></td><td>&minus;40%</td></tr>
+                  <tr><td>Repeat filter application per user, per week</td><td><span class="chip k-gap">[TBD &mdash; analytics lead]</span></td><td>&minus;50%</td></tr>
+                  <tr><td>Views created per active board</td><td><span class="chip k-gap">[TBD &mdash; analytics lead]</span></td><td>Guardrail, not a goal</td></tr>
+                </tbody>
+              </table>
+              <dl class="rows" style="margin-top:18px">
+                <div class="row"><dt>Answer 1 &rarr; Non-goals</dt><dd>Sharing moved out of v1. Building a recipient experience without a recipient problem statement would be speculative.</dd></div>
+                <div class="row"><dt>Answer 2 &rarr; Metrics</dt><dd>No baseline exists, so <span class="c" data-t="work" data-src="Guardrail 2 of the prompt: do not invent baseline metrics. An unknown number is written as a tagged placeholder with a named owner.">every baseline became a tagged placeholder with an owner</span> rather than an estimate.</dd></div>
+                <div class="row"><dt>Answer 3 &rarr; OQ-03</dt><dd>Behaviour when a recipient lacks permission &mdash; hide the items, hide the view, or show a redacted count. Owner: permissions lead. Needed by: before sharing enters scope. Without the gate, whoever drafted first would have decided this silently.</dd></div>
+              </dl>
+            </div>
+          </div>
           <dl class="rows">
             <div class="row"><dt>Scoping gate</dt><dd>The prompt asks three to five questions, then stops. It drafts nothing until they're answered. <span class="c" data-t="derived" data-src="From the bridge page: had the answer been 'recommend products', Non-Goals and FR-06 invert and regulatory review becomes an ongoing obligation.">One answer decided the shape of about a third of the PRD</span>.</dd></div>
             <div class="row"><dt>No invented data</dt><dd>Unknown numbers are written as <code>[TBD — source: owner]</code>. <span class="c" data-t="work" data-src="Every baseline in the PRD's success-metrics table is a tagged placeholder with a named owner.">The PRD contains zero invented numbers</span>.</dd></div>
