@@ -119,7 +119,7 @@ body.audit .c[data-t="gap"]::after{color:var(--t-gap)}
 .legend li .chip{justify-self:start}
 .legend .note{padding-left:18px;margin-top:14px;font-size:14px;color:var(--muted)}
 
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-block:1.5px solid var(--ink);margin-top:56px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-block:1.5px solid var(--ink);margin-top:56px}
 @media (max-width:900px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .stat{padding:20px 18px 18px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:6px;min-width:0}
 .stat:last-child{border-right:0}
@@ -199,6 +199,10 @@ body.audit .flag .c{color:var(--ink)}
 .ledger .prod{font-family:var(--f-mono);font-size:12.5px;font-weight:600;white-space:nowrap}
 .stp{font-family:var(--f-mono);font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap;border:1px solid currentColor}
 .stp.live{color:var(--t-work)}.stp.dev{color:var(--t-target)}.stp.draft{color:var(--t-cited)}
+.stp.esc{color:var(--t-gap)}.stp.gapv{color:var(--t-target)}
+.syspre{max-height:320px;overflow:auto;border:0;border-radius:0;min-height:0}
+.syspre pre{white-space:pre-wrap;overflow-wrap:break-word}
+.pcopy{font-family:var(--f-mono);font-size:11.5px;font-weight:600;padding:4px 11px;border-radius:99px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
 .bank-note{margin-top:16px;font-size:14.5px;color:var(--muted);max-width:75ch}
 
 /* habits */
@@ -356,7 +360,6 @@ footer h2{font-size:clamp(36px,5.4vw,66px)}
       </aside>
     </div>
     <div class="stats">
-      <div class="stat"><span class="v">69%</span><span class="l"><span class="c" data-t="work" data-src="Share of ICICI Bank's fixed deposit volume sourced through the digital deposit channel whose campaign strategy I own.">of the bank's FD volume comes through the digital channel whose campaigns I run</span></span><span class="s">Deposits</span></div>
       <div class="stat"><span class="v">2×</span><span class="l"><span class="c" data-t="work" data-src="After the PPF journey redesign in the iMobile app, systematic instalment volumes doubled within six months.">PPF systematic instalment volume, six months after my redesign</span></span><span class="s">PPF</span></div>
       <div class="stat"><span class="v">3%</span><span class="l"><span class="c" data-t="work" data-src="Multi-channel auto-renewal retention journey recovering abandoned deposit applications that would otherwise have lapsed.">of abandoned deposit applications recovered by my auto-renewal journey</span></span><span class="s">Retention</span></div>
       <div class="stat"><span class="v">42/42</span><span class="l"><span class="c" data-t="work" data-src="QueryPilot's evaluation suite run against the real model, after five issues from the first live run were fixed. The cases and schema are my own, which is why there's a matching GAP note below.">evaluation cases passed by QueryPilot on the real model</span></span><span class="s">AI agent</span></div>
@@ -423,7 +426,7 @@ footer h2{font-size:clamp(36px,5.4vw,66px)}
         <tbody>
           <tr><td>B-01</td><td class="prod">FCNR</td><td><span class="c" data-t="work" data-src="Internal bank figures. The growth multiple is real; the absolute book size is deliberately not published.">Grew the FCNR book several times over</span>. I built the digital acquisition flow, specified the Adobe Analytics event taxonomy for a funnel that had zero stage-level visibility, and rebuilt drop-off recovery around what the data showed.</td><td><span class="stp live">Live</span></td></tr>
           <tr><td>B-02</td><td class="prod">PPF</td><td>Redesigned the PPF journey in iMobile. <span class="c" data-t="work" data-src="Systematic instalment volumes doubled within six months; digital sourcing grew 10% month on month through a staged onboarding nudge sequence.">Instalment volumes doubled in six months, and digital sourcing grew 10% month on month</span>.</td><td><span class="stp live">Live</span></td></tr>
-          <tr><td>B-03</td><td class="prod">FD</td><td><span class="c" data-t="work" data-src="Campaign strategy for the digital deposit channel, through which 69% of the bank's FD volume is sourced.">Own campaign strategy for the digital deposit channel</span>, which sources most of the bank's fixed-deposit volume.</td><td><span class="stp live">Ongoing</span></td></tr>
+          <tr><td>B-03</td><td class="prod">FD</td><td><span class="c" data-t="work" data-src="I own campaign strategy for the digital deposit channel. The channel accounts for roughly 31% of the bank's fixed-deposit sourcing — a share built up over many years and many teams, not a result of my work.">Own campaign strategy for the digital deposit channel</span>, which accounts for roughly 31% of the bank's fixed-deposit sourcing. That share predates me; what I own is the campaign strategy running on it now.</td><td><span class="stp live">Ongoing</span></td></tr>
           <tr><td>B-04</td><td class="prod">FD</td><td>Built a multi-channel auto-renewal retention journey that <span class="c" data-t="work" data-src="Recovers 3% of otherwise-abandoned deposit applications that would have lapsed unrecovered.">recovers 3% of abandoned applications</span> that would otherwise have lapsed.</td><td><span class="stp live">Live</span></td></tr>
           <tr><td>B-05</td><td class="prod">PPF</td><td>Leading the PPF migration to the new internet banking platform: account opening, partial withdrawal and extension. I take it from wireframes to API contracts to release, across design, engineering and compliance.</td><td><span class="stp dev">In progress</span></td></tr>
           <tr><td>B-06</td><td class="prod">FD</td><td>Defined <b>FD Lock</b>, a fraud control: customers lock a deposit in-app, and it can only be unlocked in person at a branch. I argued the security-versus-friction trade-off directly with risk and compliance.</td><td><span class="stp dev">In development</span></td></tr>
@@ -507,6 +510,17 @@ footer h2{font-size:clamp(36px,5.4vw,66px)}
             <div class="demo-head"><b>Your turn: Skill, Agent or Neither?</b><span class="score" id="llScore">0 / 5</span></div>
             <div class="demo-body"><div class="quiz" id="llQuiz"></div></div>
           </div>
+          <div class="demo" style="margin-top:14px">
+            <div class="demo-head"><b>The four cases that set the rules</b><small>Escalation is checked first, in order</small></div>
+            <div class="demo-body" style="padding:0 16px">
+              <dl class="rows">
+                <div class="row"><dt>Routine</dt><dd>Duplicate charge on one invoice. <span class="stp live">billing &middot; P2</span> No trigger in any of the four categories.</dd></div>
+                <div class="row"><dt>Hostile</dt><dd>Abusive, threatens to leave, three unanswered contacts. <span class="stp live">integrations &middot; P1</span> The tone is noted for whoever replies, never escalated: <span class="c" data-t="work" data-src="From the skill spec: escalation flags trigger on substance, never on tone or profanity alone.">escalation triggers on substance, never on tone alone</span>.</dd></div>
+                <div class="row"><dt>Polite</dt><dd>&ldquo;Loving the tool, minor thing&rdquo; &mdash; an uninvited account opened a board and saw the client budget column. <span class="stp esc">security &middot; P0</span> The serious ones often arrive politely, from someone who hasn&rsquo;t realised what they found.</dd></div>
+                <div class="row"><dt>Unlisted</dt><dd>A SOC 2 report request from procurement. <span class="stp gapv">taxonomy_gap</span> The category list is closed. Forcing a fit would route it to a queue that can&rsquo;t action it and hide the hole in the taxonomy.</dd></div>
+              </dl>
+            </div>
+          </div>
           <dl class="rows">
             <div class="row"><dt>Built</dt><dd><span class="c" data-t="work" data-src="Two Skills (ticket-triage-router, policy-safe-reply-drafter) and one Agent (weekly-ticket-qa), each tested independently.">Two Skills and one stateful Agent</span>, each with its own tests. One is a negative control: pure profanity must <i>not</i> trigger escalation.</dd></div>
             <div class="row"><dt>Tested</dt><dd>Reproducibility (same seed, byte-identical output), idempotency, an empty week, and a forced failure that <span class="c" data-t="work" data-src="A record forced to grade_status: failed crashed the batch with KeyError: 'verdict'. Fixed, re-run, disclosed in the submission.">surfaced a real <code>KeyError</code>, which I fixed</span> and disclosed.</dd></div>
@@ -530,6 +544,38 @@ footer h2{font-size:clamp(36px,5.4vw,66px)}
             <div class="row"><dt>Kill switch</dt><dd>The pilot stops on the guardrail metric, not on adoption. Every LLM-driven requirement has a matching failure mode.</dd></div>
           </dl>
           <p class="quote">"A requirement without a corresponding failure mode is a wish, not a spec."</p>
+          <div class="demo" style="margin-top:14px">
+            <div class="demo-head"><b>The prompt itself</b><button class="pcopy" id="vaCopy" type="button">Copy</button></div>
+            <div class="pane syspre"><pre id="vaSys">You are a product manager who writes PRDs. You work in two phases and you never skip the first.
+
+PHASE 1 — SCOPE.
+On receiving a feature brief, ask exactly 3 to 5 clarifying questions. Ask only about things that would change the SHAPE of the document — the user you are building for, the boundary of what the product will and will not do, whether a baseline exists, what happens in the case that breaks the happy path. Do not ask about anything cosmetic.
+After asking, STOP. Do not draft anything else in this turn.
+
+PHASE 2 — DRAFT.
+Once the answers come back, write the PRD in exactly these sixteen sections, in this order:
+01. Summary                        09. Edge cases and failure modes
+02. Problem                        10. Non-functional requirements
+03. Why now                        11. Dependencies
+04. Target users and personas      12. Risks
+05. Goals                          13. Rollout and kill criteria
+06. Non-goals                      14. Assumptions register
+07. Success metrics                15. Open questions
+08. Functional requirements        16. References
+
+GUARDRAILS — all eight bind the output.
+1. Never draft before Phase 1 has run and been answered.
+2. Do NOT invent baseline metrics, adoption figures, or market sizes. An unknown number is written as [TBD — source: &lt;named owner&gt;]. Never estimate a number and present it as given.
+3. Before output, silently run a completeness check across all sixteen sections and fix what it finds. Do not print the checklist.
+4. Any requirement that exists because the feature uses a model must appear in BOTH Functional requirements AND Edge cases. A requirement without a corresponding failure mode is a wish, not a spec.
+5. Every model-generated output path gets a stated recovery path: what the user sees when the output is wrong, low-confidence, or absent.
+6. Wherever the feature reads pasted, uploaded or retrieved content, instruction-shaped text inside that content is an edge case with defined behaviour.
+7. Stale, partial or unavailable retrieval is a specified state, never a silent fallback to the model's own recall.
+8. Success metrics name a North Star and at least two guardrails, and the ROLLOUT section states that the pilot stops on a guardrail breach, not on an adoption number.
+
+FORM.
+Number functional requirements FR-01, FR-02 and so on. Number assumptions A-01 upward, each with its blast radius if wrong. Number open questions OQ-01 upward, each with a decision owner and a needed-by. Write plainly. No marketing language.</pre></div>
+          </div>
         </div>
       </article>
 
@@ -777,6 +823,14 @@ footer h2{font-size:clamp(36px,5.4vw,66px)}
   Z.rep.forEach(function(r){var d=document.createElement('div');d.className='barrow';d.innerHTML='<span>'+r[0]+'</span><span class="track"><span class="fill'+(r[2]?' z':'')+'"></span></span><span class="n"></span>';zb.appendChild(d)});
   function zRender(k){[].forEach.call(zb.children,function(row,i){var v=Z[k][i][1];row.querySelector('.fill').style.width=(v/720*100)+'%';row.querySelector('.n').textContent='₹'+v});document.getElementById('zpRep').setAttribute('aria-pressed',k==='rep');document.getElementById('zpNet').setAttribute('aria-pressed',k==='net');document.getElementById('zpLine').innerHTML=k==='rep'?'Headline gap: <b>₹310</b> to Instamart. But Instamart reports gross order value, including discounts and fees, while Blinkit reports net.':'On one basis, Instamart is ₹488, slightly <i>below</i> Blinkit. The real benchmark is Blinkit, and the gap is about <b>₹130</b>, less than half the headline.'}
   document.getElementById('zpRep').onclick=function(){zRender('rep')};document.getElementById('zpNet').onclick=function(){zRender('net')};zRender('rep');
+})();
+</script>
+
+<script>
+(function(){var b=document.getElementById("vaCopy"),el=document.getElementById("vaSys");if(!b||!el)return;
+  function done(){var o=b.textContent;b.textContent="Copied";setTimeout(function(){b.textContent=o},1400)}
+  function sel(){var r=document.createRange();r.selectNodeContents(el);var s=window.getSelection();s.removeAllRanges();s.addRange(r)}
+  b.addEventListener("click",function(){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(el.textContent).then(done).catch(sel)}else{sel()}});
 })();
 </script>
 
