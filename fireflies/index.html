@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fireflies — Commitments | Prototype by Garvit</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<meta name="description" content="Interactive prototype: turning commitments extracted from meetings into owned items that reach honest closure. Claim and Close, across seven screens.">
+<style>
+:root{
+  --ink:#151A21; --ink-2:#232C38; --paper:#F4F5F7; --white:#FFFFFF;
+  --line:#DDE0E4; --line-2:#EDEFF2;
+  --text:#1B2229; --muted:#6B7684; --muted-2:#98A2AE;
+  --open:#C8821A; --open-bg:#FBF2E1;
+  --done:#1D8A62; --done-bg:#E4F2EC;
+  --reassigned:#3B6FB6; --reassigned-bg:#E6EDF7;
+  --dropped:#7A8593; --dropped-bg:#EDEFF2;
+  --brand:#E2336B;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Carlito,Calibri,"Liberation Sans",sans-serif;
+  background:var(--paper); color:var(--text);
+  -webkit-font-smoothing:antialiased; line-height:1.45;
+}
+h1,h2,h3,h4,.pop{font-family:Poppins,"Liberation Sans",sans-serif}
+
+/* ---------- prototype chrome ---------- */
+.chrome{background:var(--ink);color:#fff;padding:14px 22px}
+.chrome-top{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;max-width:1180px;margin:0 auto}
+.chrome-title{font-family:Poppins;font-size:15px;font-weight:600;letter-spacing:.1px}
+.chrome-title span{color:var(--muted-2);font-weight:400;font-size:13px;display:block;margin-top:2px}
+.toggles{display:flex;gap:8px;align-items:center}
+.tgl{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff;
+  font-family:Poppins;font-size:12px;font-weight:500;padding:7px 13px;border-radius:99px;cursor:pointer}
+.tgl:hover{background:rgba(255,255,255,.16)}
+.tgl.on{background:var(--brand);border-color:var(--brand)}
+
+.steps{max-width:1180px;margin:14px auto 0;display:flex;gap:6px;flex-wrap:wrap}
+.step{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#C7CDD5;
+  font-size:11.5px;font-family:Poppins;padding:6px 11px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.step b{color:#fff;font-weight:600}
+.step:hover{background:rgba(255,255,255,.14)}
+.step.active{background:#fff;color:var(--ink);border-color:#fff}
+.step.active b{color:var(--ink)}
+.step.today{border-style:dashed}
+
+.stage{max-width:1180px;margin:0 auto;padding:26px 22px 60px}
+.stage-label{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.tag{font-family:Poppins;font-size:10.5px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;
+  padding:4px 9px;border-radius:4px}
+.tag.existing{background:#E2E5E9;color:#4A5563}
+.tag.new{background:var(--brand);color:#fff}
+.stage-label h2{font-size:19px;font-weight:600}
+.stage-sub{color:var(--muted);font-size:13.5px;margin-bottom:18px;max-width:760px}
+
+/* ---------- app shell ---------- */
+.app{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+  box-shadow:0 1px 2px rgba(20,24,31,.05)}
+.app-bar{display:flex;align-items:center;gap:14px;padding:11px 18px;border-bottom:1px solid var(--line-2);background:#FBFCFD}
+.ff-logo{width:20px;height:20px;border-radius:5px;background:var(--ink);position:relative;flex:0 0 auto}
+.ff-logo::after{content:"";position:absolute;inset:5px 5px auto auto;width:7px;height:7px;background:var(--brand);border-radius:2px}
+.ff-name{font-family:Poppins;font-weight:600;font-size:13.5px}
+.app-nav{display:flex;gap:2px;margin-left:8px}
+.app-nav span{font-size:12.5px;color:var(--muted);padding:5px 10px;border-radius:6px}
+.app-nav span.sel{background:var(--ink);color:#fff;font-weight:600}
+.app-user{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.avatar{width:24px;height:24px;border-radius:50%;background:var(--ink-2);color:#fff;font-size:10.5px;
+  display:flex;align-items:center;justify-content:center;font-family:Poppins;font-weight:600;flex:0 0 auto}
+.app-body{padding:20px 22px 24px}
+.two-col{display:grid;grid-template-columns:1.15fr .85fr;gap:22px}
+@media(max-width:860px){.two-col{grid-template-columns:1fr}}
+
+.panel-h{font-family:Poppins;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.7px;margin-bottom:10px}
+.transcript{font-size:13px;color:var(--text)}
+.tline{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line-2)}
+.tline:last-child{border:0}
+.tspk{font-weight:700;font-size:12px;color:var(--ink);min-width:62px;flex:0 0 auto}
+.tline.hl{background:var(--open-bg);margin:0 -8px;padding:7px 8px;border-radius:6px;border-bottom:0}
+
+.ai-box{background:#FBFCFD;border:1px solid var(--line);border-radius:8px;padding:14px 15px}
+.ai-item{display:flex;gap:9px;padding:8px 0;font-size:13px;border-bottom:1px solid var(--line-2)}
+.ai-item:last-child{border:0}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--muted-2);margin-top:7px;flex:0 0 auto}
+
+/* ---------- commitment card ---------- */
+.ccard{border:1px solid var(--line);border-radius:9px;padding:14px 15px;background:#fff;margin-bottom:11px}
+.ccard.focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(21,26,33,.06)}
+.ctext{font-size:14.5px;font-weight:600;font-family:Poppins;line-height:1.35;margin-bottom:5px}
+.cmeta{font-size:11.5px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.cmeta b{color:var(--text);font-weight:600}
+.sep{color:var(--muted-2)}
+.quote{font-size:12.5px;color:var(--muted);font-style:italic;border-left:2px solid var(--line);
+  padding:4px 0 4px 10px;margin:9px 0 2px}
+
+/* state pill — the visual motif */
+.pill{display:inline-flex;align-items:center;gap:5px;font-family:Poppins;font-size:10.5px;font-weight:600;
+  letter-spacing:.5px;text-transform:uppercase;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.pill::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.pill.open{background:var(--open-bg);color:var(--open)}
+.pill.done{background:var(--done-bg);color:var(--done)}
+.pill.reassigned{background:var(--reassigned-bg);color:var(--reassigned)}
+.pill.dropped{background:var(--dropped-bg);color:var(--dropped)}
+.pill.unowned{background:#F3E6E9;color:#A63A56}
+
+.btnrow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{font-family:Poppins;font-size:12.5px;font-weight:600;padding:8px 15px;border-radius:7px;
+  border:1px solid var(--line);background:#fff;color:var(--text);cursor:pointer}
+.btn:hover{background:#F7F8F9}
+.btn.pri{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.pri:hover{background:#000}
+.btn.sm{font-size:11.5px;padding:6px 12px}
+.btn.done{border-color:var(--done);color:var(--done)}
+.btn.reassigned{border-color:var(--reassigned);color:var(--reassigned)}
+.btn.dropped{border-color:var(--dropped);color:var(--dropped)}
+.btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+.evidence{display:flex;gap:8px;align-items:flex-start;background:var(--done-bg);border-radius:7px;
+  padding:9px 11px;font-size:12px;color:#14664A;margin-top:10px}
+.evidence b{font-family:Poppins;font-weight:600}
+.dropnote{background:var(--dropped-bg);border-radius:7px;padding:9px 11px;font-size:12px;color:#4E5763;margin-top:10px}
+
+/* ---------- slack ---------- */
+.slack{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.slack-bar{background:#3F0E40;color:#fff;padding:10px 16px;font-family:Poppins;font-size:13px;font-weight:600;
+  display:flex;align-items:center;gap:9px}
+.slack-body{padding:16px 18px}
+.slack-msg{display:flex;gap:11px}
+.bot{width:34px;height:34px;border-radius:7px;background:var(--ink);flex:0 0 auto;position:relative}
+.bot::after{content:"";position:absolute;inset:9px 9px auto auto;width:10px;height:10px;background:var(--brand);border-radius:3px}
+.bot-name{font-family:Poppins;font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:7px;margin-bottom:2px}
+.bot-tag{background:#E2E5E9;color:#4A5563;font-size:9.5px;font-weight:600;padding:1.5px 5px;border-radius:3px;letter-spacing:.4px}
+.slack-time{color:var(--muted-2);font-size:11px;font-weight:400}
+
+/* ---------- misc ---------- */
+.counter{display:inline-flex;gap:7px;align-items:center;background:var(--line-2);border-radius:99px;
+  padding:5px 12px;font-size:11.5px;color:var(--muted);font-family:Poppins;font-weight:500}
+.statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:700px){.statrow{grid-template-columns:repeat(2,1fr)}}
+.stat{background:#FBFCFD;border:1px solid var(--line);border-radius:8px;padding:13px 14px}
+.stat .n{font-family:Poppins;font-size:25px;font-weight:600;line-height:1}
+.stat .l{font-size:11.5px;color:var(--muted);margin-top:5px}
+.bar{height:7px;border-radius:99px;background:var(--line-2);overflow:hidden;display:flex;margin-top:10px}
+.bar i{display:block;height:100%}
+
+.empty{text-align:center;padding:34px 20px;color:var(--muted);font-size:13.5px}
+.empty b{display:block;font-family:Poppins;font-size:15px;color:var(--text);margin-bottom:5px;font-weight:600}
+
+/* ---------- design notes ---------- */
+.note{display:none;border-left:3px solid var(--brand);background:#FDF2F6;padding:11px 14px;
+  border-radius:0 7px 7px 0;margin:12px 0;font-size:12.5px;color:#7A1738}
+.note b{font-family:Poppins;font-weight:600;display:block;margin-bottom:3px;font-size:11px;
+  letter-spacing:.6px;text-transform:uppercase}
+body.notes .note{display:block}
+
+.callout{background:var(--open-bg);border-radius:8px;padding:12px 14px;font-size:12.5px;color:#7A4E07;margin-top:14px}
+.callout b{font-family:Poppins;font-weight:600}
+
+.screen{display:none}
+.screen.on{display:block}
+
+.foot{max-width:1180px;margin:0 auto;padding:0 22px 40px;color:var(--muted);font-size:12px}
+.foot b{font-family:Poppins;font-weight:600;color:var(--text)}
+
+.sheet{border:1px solid var(--ink);border-radius:9px;padding:16px;background:#fff;margin-top:12px}
+.sheet h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.sheet p{font-size:12.5px;color:var(--muted);margin-bottom:11px}
+.reason{width:100%;border:1px solid var(--line);border-radius:7px;padding:9px 11px;font-size:12.5px;
+  font-family:inherit;color:var(--text);margin-bottom:11px}
+.reason:focus{outline:2px solid var(--ink);outline-offset:0}
+.opt{color:var(--muted-2);font-weight:400;font-size:11.5px}
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <div class="chrome-top">
+    <div class="chrome-title">Fireflies — Commitments
+      <span>Interactive prototype · PM Launchpad capstone · Garvit</span></div>
+    <div class="toggles">
+      <button class="tgl" id="noteBtn" onclick="toggleNotes()">Show design notes</button>
+      <button class="tgl" onclick="resetAll()">Reset</button>
+    </div>
+  </div>
+  <div class="steps" id="steps"></div>
+</div>
+
+<div class="stage">
+
+<!-- ============ 1. TODAY: MEETING NOTES ============ -->
+<section class="screen on" id="s-notes">
+  <div class="stage-label"><span class="tag existing">Today · existing Fireflies</span><h2>Meeting notes and action items</h2></div>
+  <p class="stage-sub">Fireflies already records, transcribes and extracts. A commitment is spoken, captured accurately, and listed. This screen is where the product currently stops.</p>
+
+  <div class="app">
+    <div class="app-bar">
+      <div class="ff-logo"></div><div class="ff-name">Fireflies</div>
+      <div class="app-nav"><span class="sel">Notes</span><span>Search</span><span>Apps</span><span>Analytics</span></div>
+      <div class="app-user"><span>Sprint Review · Tue 2 Oct</span><div class="avatar">PN</div></div>
+    </div>
+    <div class="app-body two-col">
+      <div>
+        <div class="panel-h">Transcript</div>
+        <div class="transcript">
+          <div class="tline"><span class="tspk">Rohit</span><span>Before we close — I still don't have the pricing view for the enterprise tier.</span></div>
+          <div class="tline hl"><span class="tspk">Priya</span><span>I'll pull the Q3 pricing numbers and get them to you by Friday.</span></div>
+          <div class="tline"><span class="tspk">Rohit</span><span>Perfect, that unblocks the forecast.</span></div>
+          <div class="tline"><span class="tspk">Arjun</span><span>I'll take another look at the onboarding drop-off chart this week.</span></div>
+          <div class="tline"><span class="tspk">Meera</span><span>Someone should probably update the partner deck as well.</span></div>
+        </div>
+        <div class="note"><b>Extraction is not the problem</b>Fireflies captures all of this correctly today. The brief puts extraction improvements out of scope, and my research agrees — nobody said capture was broken. Note the last line: "someone should probably" is a discussion item, not a commitment. It must not become a tracked item.</div>
+      </div>
+      <div>
+        <div class="panel-h">AI action items</div>
+        <div class="ai-box">
+          <div class="ai-item"><span class="dot"></span><span>Priya to share Q3 pricing numbers with Rohit by Friday</span></div>
+          <div class="ai-item"><span class="dot"></span><span>Arjun to review onboarding drop-off chart</span></div>
+          <div class="ai-item"><span class="dot"></span><span>Update the partner deck</span></div>
+        </div>
+        <div class="callout"><b>What this list cannot tell you:</b> who owns each item, whether anything happened, or whether an item was deliberately let go. Every item looks identical on day 1 and on day 14.</div>
+        <div class="btnrow"><button class="btn pri" onclick="go('email')">See what happens next →</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. TODAY: SUMMARY EMAIL ============ -->
+<section class="screen" id="s-email">
+  <div class="stage-label"><span class="tag existing">Today · existing Fireflies</span><h2>The post-meeting summary email</h2></div>
+  <p class="stage-sub">The commitment is delivered as a broadcast to everyone who attended. This is the moment ownership is lost.</p>
+
+  <div class="app">
+    <div class="app-bar"><div class="ff-logo"></div><div class="ff-name">Summary email</div>
+      <div class="app-user"><span>Sent 15:04 to 5 recipients</span></div></div>
+    <div class="app-body">
+      <div style="max-width:620px">
+        <div style="font-family:Poppins;font-size:16px;font-weight:600;margin-bottom:3px">Sprint Review — meeting summary</div>
+        <div style="font-size:12.5px;color:var(--muted);margin-bottom:16px">
+          To: priya@ · rohit@ · arjun@ · meera@ · sanjay@</div>
+        <div style="border-top:1px solid var(--line);padding-top:14px">
+          <div class="panel-h">Action items</div>
+          <div class="ai-item"><span class="dot"></span><span>Priya to share Q3 pricing numbers with Rohit by Friday</span></div>
+          <div class="ai-item"><span class="dot"></span><span>Arjun to review onboarding drop-off chart</span></div>
+          <div class="ai-item"><span class="dot"></span><span>Update the partner deck</span></div>
+        </div>
+        <div class="callout"><b>Addressed to five people, owned by none.</b> Priya reads it on her phone, thinks "yes, I know," and moves on. Nothing in the system changes on Friday, or on day 14. The item is not resolved — it is simply repeated in the next meeting.</div>
+        <div class="note"><b>Why not just make this email better</b>This is the mechanism that is already failing. Adding reminders to it would rebuild the broken thing with a nag attached — and the brief explicitly requires working inside the product, not only through this email. I rejected "auto-assign + reminder emails" for this reason.</div>
+        <div class="btnrow">
+          <button class="btn" onclick="go('notes')">← Back</button>
+          <button class="btn pri" onclick="go('claim')">Now the proposed experience →</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. CLAIM ============ -->
+<section class="screen" id="s-claim">
+  <div class="stage-label"><span class="tag new">New · feature 1</span><h2>Claim — ownership at the moment of exit</h2></div>
+  <p class="stage-sub">Straight after the call, inside Fireflies, each person sees only the commitments they appear to have made. The system proposes. The person confirms. Nothing is ever assigned.</p>
+
+  <div class="app">
+    <div class="app-bar"><div class="ff-logo"></div><div class="ff-name">Fireflies</div>
+      <div class="app-nav"><span>Notes</span><span class="sel">Commitments</span><span>Search</span><span>Apps</span></div>
+      <div class="app-user"><span>Signed in as Priya Nair</span><div class="avatar">PN</div></div></div>
+    <div class="app-body two-col">
+      <div>
+        <div class="panel-h">From Sprint Review · 2 minutes ago</div>
+        <div id="claimList"></div>
+        <div class="note"><b>Three buttons, not one</b>"Not mine" and "Wasn't a commitment" exist because extraction is sometimes wrong, and because a product that only offers "yes" is an assignment system wearing a confirmation costume. A rejected card returns the item to the room unowned — it is never silently reassigned to someone else.</div>
+        <div class="note"><b>Why the transcript line is shown</b>Research theme 5: a commitment without context becomes an unreadable task title two weeks later. Showing the sentence the person actually said makes the claim decision take two seconds instead of requiring a memory search.</div>
+      </div>
+      <div>
+        <div class="panel-h">The four states</div>
+        <div class="ai-box" style="padding:15px">
+          <div style="display:grid;gap:11px;font-size:12px;color:var(--muted)">
+            <div><span class="pill open">Open</span><div style="margin-top:5px">Claimed by a person, not yet settled.</div></div>
+            <div><span class="pill done">Done</span><div style="margin-top:5px">Completed — proven by a signal, or stated by the owner.</div></div>
+            <div><span class="pill reassigned">Reassigned</span><div style="margin-top:5px">Accepted by a different owner.</div></div>
+            <div><span class="pill dropped">Dropped</span><div style="margin-top:5px">Deliberately let go. Counts as resolved, styled neutrally on purpose.</div></div>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:14px"><b>Resolution is not completion.</b> Three of these four states close a commitment. Only "open" is a failure at day 14 — and a silent one is the only real failure.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. MY COMMITMENTS ============ -->
+<section class="screen" id="s-mine">
+  <div class="stage-label"><span class="tag new">New</span><h2>My commitments — state, not a to-do list</h2></div>
+  <p class="stage-sub">One list, only what this person owns, each with a state that the system moves on its own wherever evidence exists.</p>
+
+  <div class="app">
+    <div class="app-bar"><div class="ff-logo"></div><div class="ff-name">Fireflies</div>
+      <div class="app-nav"><span>Notes</span><span class="sel">Commitments</span><span>Search</span><span>Apps</span></div>
+      <div class="app-user"><span>Signed in as Priya Nair</span><div class="avatar">PN</div></div></div>
+    <div class="app-body two-col">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px;flex-wrap:wrap">
+          <div class="panel-h" style="margin:0">Mine · this fortnight</div>
+          <span class="counter" id="promptCount">You have been asked 0 questions this week</span>
+        </div>
+        <div id="mineList"></div>
+        <div class="note"><b>No due-date enforcement, no escalation, no board</b>There is no Kanban view, no subtasks, no dependency graph and no overdue-red styling. The moment this list becomes something to groom, it has become the second inbox the brief forbids.</div>
+        <div class="btnrow"><button class="btn pri" onclick="go('digest')">Jump to Monday →</button></div>
+      </div>
+      <div>
+        <div class="panel-h">Where the state comes from</div>
+        <div class="ai-box" style="padding:15px;font-size:12px;color:var(--muted)">
+          <div style="display:grid;gap:12px">
+            <div><b style="font-family:Poppins;color:var(--text)">1. Evidence, silently</b><div style="margin-top:4px">A file shared, a ticket moved, a thread resolved. The owner is never asked. This is the path most commitments should take.</div></div>
+            <div><b style="font-family:Poppins;color:var(--text)">2. A question, once a week</b><div style="margin-top:4px">Only for what the system genuinely cannot see. Batched into one digest, never one prompt per item.</div></div>
+            <div><b style="font-family:Poppins;color:var(--text)">3. Never by nagging</b><div style="margin-top:4px">No per-item reminder emails. That is the mechanism already failing today.</div></div>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:14px"><b>Follow-up effort must go down, not up.</b> If this screen adds work to someone's week, the feature has failed its own brief regardless of what the closure rate says.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. DIGEST ============ -->
+<section class="screen" id="s-digest">
+  <div class="stage-label"><span class="tag new">New · feature 2</span><h2>Close — one batched ask, three honest exits</h2></div>
+  <p class="stage-sub">Everything the system could resolve on its own has already been resolved. This is the only prompt Priya receives all week, and it arrives where she already works.</p>
+
+  <div class="slack">
+    <div class="slack-bar">Slack · direct messages · Fireflies</div>
+    <div class="slack-body">
+      <div class="slack-msg">
+        <div class="bot"></div>
+        <div style="flex:1;min-width:0">
+          <div class="bot-name">Fireflies <span class="bot-tag">APP</span> <span class="slack-time">Monday 9:02 AM</span></div>
+          <div style="font-size:13.5px;margin:5px 0 13px" id="digestIntro"></div>
+          <div id="digestList"></div>
+        </div>
+      </div>
+      <div class="note"><b>Weekly and batched, never per item</b>Research theme 7: "I don't want 30 notifications every day." One digest per person per week is a hard product rule, and prompts-per-user-per-week is a guardrail metric with a cap of 2, not a number to optimise upward.</div>
+      <div class="note"><b>Drop is styled in slate, not red</b>The colour system encodes the core belief. Done is green, reassigned is blue, dropped is neutral grey — because the brief counts a deliberate drop as resolution, and a red "abandoned" badge would quietly teach people that the honest answer is the shameful one.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. NEXT MEETING ============ -->
+<section class="screen" id="s-recap">
+  <div class="stage-label"><span class="tag new">New · the loop</span><h2>Next meeting opens on a clean slate</h2></div>
+  <p class="stage-sub">This is where closure pays the team back, and why the behaviour repeats.</p>
+
+  <div class="app">
+    <div class="app-bar"><div class="ff-logo"></div><div class="ff-name">Fireflies</div>
+      <div class="app-nav"><span class="sel">Notes</span><span>Commitments</span><span>Search</span><span>Apps</span></div>
+      <div class="app-user"><span>Sprint Review · Tue 9 Oct · starting now</span><div class="avatar">PN</div></div></div>
+    <div class="app-body">
+      <div style="max-width:680px">
+        <div class="panel-h">Carried in from last week</div>
+        <div id="recapList"></div>
+        <div class="callout" id="recapSummary"></div>
+        <div class="note"><b>The growth loop in one screen</b>Closed commitments make the next meeting shorter and less repetitive. The team credits Fireflies with the change, records more meetings, and invites more members — which produces more commitments to close. The loop's input is closure, not notifications.</div>
+        <div class="btnrow"><button class="btn pri" onclick="go('team')">See the team view →</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7. TEAM VIEW ============ -->
+<section class="screen" id="s-team">
+  <div class="stage-label"><span class="tag new">New · the buyer's evidence</span><h2>Team view — aggregate only, by design</h2></div>
+  <p class="stage-sub">This is what makes the value visible to a manager and a buyer without turning the feature into a monitoring tool.</p>
+
+  <div class="app">
+    <div class="app-bar"><div class="ff-logo"></div><div class="ff-name">Fireflies</div>
+      <div class="app-nav"><span>Notes</span><span>Commitments</span><span class="sel">Analytics</span><span>Apps</span></div>
+      <div class="app-user"><span>Growth Pod · 12 members</span><div class="avatar">EM</div></div></div>
+    <div class="app-body">
+      <div class="statrow">
+        <div class="stat"><div class="n" style="color:var(--done)">46%</div><div class="l">14-day honest closure rate</div></div>
+        <div class="stat"><div class="n">91%</div><div class="l">Commitments with a confirmed owner</div></div>
+        <div class="stat"><div class="n">3.1<span style="font-size:15px"> days</span></div><div class="l">Median time to resolution</div></div>
+        <div class="stat"><div class="n">11%</div><div class="l">Resolved by being dropped</div></div>
+      </div>
+      <div style="max-width:660px">
+        <div class="panel-h">How the last 90 commitments resolved</div>
+        <div class="bar">
+          <i style="width:31%;background:var(--done)"></i>
+          <i style="width:4%;background:var(--reassigned)"></i>
+          <i style="width:11%;background:var(--dropped)"></i>
+          <i style="width:54%;background:var(--line)"></i>
+        </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:11px">
+          <span class="pill done">Done 31%</span><span class="pill reassigned">Reassigned 4%</span>
+          <span class="pill dropped">Dropped 11%</span><span class="pill open">Still open 54%</span>
+        </div>
+        <div class="callout"><b>There is no list of people on this screen.</b> No individual closure rates, no leaderboard, no "least responsive team member". A manager can see whether the team's commitments are resolving; they cannot use this to rank a person.</div>
+        <div class="note"><b>The drop rate is a guardrail, read from below</b>If the dropped share ever falls close to zero, the honest exit is not being experienced as safe and the feature has quietly become a compliance tool. A healthy team drops things on purpose. This is the metric I would watch before the North Star itself.</div>
+        <div class="btnrow"><button class="btn" onclick="go('notes')">← Restart the story</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="foot" style="padding-top:22px"><a href="../" style="color:var(--muted);text-decoration:none;font-family:Poppins;font-size:12px">&larr; Garvit Joshi &middot; portfolio</a></div>
+<div class="foot">
+  <b>How to read this prototype.</b> Screens 1–2 are the Fireflies experience as it exists today. Screens 3–7 are the proposed experience. Every button works and the state carries across screens — claim a commitment on screen 3 and it appears on screen 4, close it on screen 5 and screen 6 changes. Turn on <b>Show design notes</b> for the annotated version.
+</div>
+
+<script>
+const STEPS=[
+ {id:'notes', n:'1', t:'Meeting notes', today:true},
+ {id:'email', n:'2', t:'Summary email', today:true},
+ {id:'claim', n:'3', t:'Claim'},
+ {id:'mine',  n:'4', t:'My commitments'},
+ {id:'digest',n:'5', t:'Monday digest'},
+ {id:'recap', n:'6', t:'Next meeting'},
+ {id:'team',  n:'7', t:'Team view'}
+];
+
+const SEED=[
+ {id:'c1', text:'Share the Q3 pricing numbers with Rohit',
+  said:'"I\'ll pull the Q3 pricing numbers and get them to you by Friday."',
+  meeting:'Sprint Review', when:'Tue 2 Oct', due:'Fri 5 Oct',
+  claimed:null, state:'unclaimed', evidence:null, reason:null, newOwner:null, confidence:'high'},
+ {id:'c2', text:'Review the onboarding drop-off chart',
+  said:'"I\'ll take another look at the onboarding drop-off chart this week."',
+  meeting:'Sprint Review', when:'Tue 2 Oct', due:'No date said',
+  claimed:null, state:'unclaimed', evidence:null, reason:null, newOwner:null, confidence:'high',
+  notMine:true},
+ {id:'c3', text:'Send the revised SOW to the Meridian account team',
+  said:'"Let me get the revised SOW across to Meridian."',
+  meeting:'Client sync', when:'Wed 3 Oct', due:'Mon 8 Oct',
+  claimed:null, state:'unclaimed', evidence:null, reason:null, newOwner:null, confidence:'high'}
+];
+
+let C=[], prompts=0, notes=false;
+
+function clone(){return SEED.map(o=>Object.assign({},o));}
+
+function init(){
+  C=clone(); prompts=0;
+  document.getElementById('steps').innerHTML=STEPS.map(s=>
+    `<div class="step${s.today?' today':''}" id="st-${s.id}" onclick="go('${s.id}')"><b>${s.n}</b> ${s.t}</div>`).join('');
+  go('notes');
+}
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(e=>e.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+  document.querySelectorAll('.step').forEach(e=>e.classList.remove('active'));
+  document.getElementById('st-'+id).classList.add('active');
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleNotes(){
+  notes=!notes;
+  document.body.classList.toggle('notes',notes);
+  const b=document.getElementById('noteBtn');
+  b.classList.toggle('on',notes);
+  b.textContent = notes ? 'Hide design notes' : 'Show design notes';
+}
+function resetAll(){init();}
+
+function find(id){return C.find(c=>c.id===id);}
+
+/* --- actions --- */
+function claim(id){ const c=find(id); c.claimed=true; c.state='open'; render(); }
+function notMine(id){ const c=find(id); c.claimed=false; c.state='unowned'; render(); }
+function notCommit(id){ const c=find(id); c.claimed=false; c.state='removed'; render(); }
+function autoResolve(id,txt){ const c=find(id); c.state='done'; c.evidence=txt; render(); }
+function markDone(id){ const c=find(id); c.state='done'; c.evidence=null; prompts++; render(); }
+function openSheet(id,kind){ const c=find(id); c.sheet=kind; render(); }
+function closeSheet(id){ const c=find(id); c.sheet=null; render(); }
+function confirmDrop(id){
+  const c=find(id); const v=document.getElementById('r-'+id);
+  c.reason=(v&&v.value.trim())||null; c.state='dropped'; c.sheet=null; prompts++; render();
+}
+function confirmReassign(id){
+  const c=find(id); const v=document.getElementById('r-'+id);
+  c.newOwner=(v&&v.value.trim())||'Arjun Menon'; c.state='reassigned'; c.sheet=null; prompts++; render();
+}
+
+/* --- pills --- */
+function pill(s){
+  const m={open:['open','Open'],done:['done','Done'],reassigned:['reassigned','Reassigned'],
+           dropped:['dropped','Dropped'],unowned:['unowned','Unowned'],unclaimed:['open','Awaiting claim']};
+  const [cls,label]=m[s]||['open',s];
+  return `<span class="pill ${cls}">${label}</span>`;
+}
+
+/* --- renderers --- */
+function render(){
+  /* screen 3 — claim */
+  const cl=document.getElementById('claimList');
+  if(cl){
+    const pend=C.filter(c=>c.claimed===null);
+    cl.innerHTML = pend.length ? pend.map(c=>`
+      <div class="ccard focus">
+        <div class="ctext">You committed to: ${c.text}</div>
+        <div class="cmeta"><b>${c.meeting}</b><span class="sep">·</span>${c.when}<span class="sep">·</span>${c.due}</div>
+        <div class="quote">${c.said}</div>
+        <div class="btnrow">
+          <button class="btn pri" onclick="claim('${c.id}')">Yes, that's mine</button>
+          <button class="btn" onclick="notMine('${c.id}')">Not mine</button>
+          <button class="btn" onclick="notCommit('${c.id}')">Wasn't a commitment</button>
+        </div>
+      </div>`).join('')
+    : `<div class="empty"><b>All three handled.</b>Two taps each, taken while the meeting was still fresh. Nothing was assigned to anyone who didn't agree to it.
+       <div class="btnrow" style="justify-content:center"><button class="btn pri" onclick="go('mine')">See my commitments →</button></div></div>`;
+
+    const handled=C.filter(c=>c.claimed!==null);
+    if(handled.length) cl.innerHTML += `<div style="margin-top:16px"><div class="panel-h">Handled just now</div>` +
+      handled.map(c=>`<div class="ccard"><div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between">
+        <div style="font-size:13.5px">${c.state==='removed'?'<s style="color:var(--muted)">'+c.text+'</s>':c.text}</div>
+        ${c.state==='removed'?'<span class="pill dropped">Not tracked</span>':pill(c.state)}</div>
+        ${c.state==='unowned'?'<div class="dropnote">Returned to the room as unowned. Visible in the meeting recap so it can be picked up deliberately — never auto-assigned to someone else.</div>':''}
+        ${c.state==='removed'?'<div class="dropnote">Removed from tracking. This signal feeds the extraction-precision guardrail.</div>':''}
+      </div>`).join('') + `</div>`;
+  }
+
+  /* screen 4 — mine */
+  const ml=document.getElementById('mineList');
+  if(ml){
+    const mine=C.filter(c=>c.claimed===true);
+    ml.innerHTML = mine.length ? mine.map(c=>`
+      <div class="ccard">
+        <div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px"><div class="ctext" style="font-size:13.5px">${c.text}</div>
+          <div class="cmeta"><b>${c.meeting}</b><span class="sep">·</span>${c.when}<span class="sep">·</span>${c.due}</div></div>
+          ${pill(c.state)}
+        </div>
+        ${c.evidence?`<div class="evidence"><span>✓</span><span><b>Resolved by evidence.</b> ${c.evidence} You were not asked anything.</span></div>`:''}
+        ${c.state==='open'&&c.id==='c1'?`<div class="btnrow"><button class="btn sm" onclick="autoResolve('c1','File <i>pricing_q3_v3.xlsx</i> shared with Rohit in #growth on Thu 4 Oct.')">▶ Simulate: Priya shares the file in Slack</button></div>`:''}
+        ${c.state==='open'&&c.id==='c3'?`<div class="dropnote">No signal seen yet. This one will appear in Monday's digest.</div>`:''}
+      </div>`).join('')
+      : `<div class="empty"><b>Nothing claimed yet.</b>Go back to step 3 and claim a commitment first.</div>`;
+
+    document.getElementById('promptCount').textContent =
+      `You have been asked ${prompts} question${prompts===1?'':'s'} this week`;
+  }
+
+  /* screen 5 — digest */
+  const dl=document.getElementById('digestList');
+  if(dl){
+    const mine=C.filter(c=>c.claimed===true);
+    const resolvedBySystem=mine.filter(c=>c.state==='done'&&c.evidence);
+    const openOnes=mine.filter(c=>c.state==='open');
+    const closed=mine.filter(c=>c.state!=='open'&&!(c.state==='done'&&c.evidence));
+
+    document.getElementById('digestIntro').innerHTML =
+      `Morning Priya. ${resolvedBySystem.length?`I closed <b>${resolvedBySystem.length}</b> of your commitments from the evidence I could see, so I haven't asked about ${resolvedBySystem.length===1?'it':'those'}. `:''}` +
+      (openOnes.length ? `<b>${openOnes.length}</b> still ${openOnes.length===1?'needs':'need'} a call from you.`
+                       : `Nothing left open on your side — enjoy the week.`);
+
+    dl.innerHTML = openOnes.map(c=>`
+      <div class="ccard">
+        <div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px"><div class="ctext" style="font-size:13.5px">${c.text}</div>
+          <div class="cmeta">${c.meeting}<span class="sep">·</span>promised ${c.when}</div></div>${pill(c.state)}
+        </div>
+        ${c.sheet==='drop'?`
+          <div class="sheet"><h4>Not doing this</h4>
+          <p>This counts as resolved. Rohit stops waiting, and it won't come back next week.</p>
+          <input class="reason" id="r-${c.id}" placeholder="Reason — optional, one line">
+          <div class="btnrow"><button class="btn pri" onclick="confirmDrop('${c.id}')">Mark as dropped</button>
+          <button class="btn" onclick="closeSheet('${c.id}')">Cancel</button></div></div>`
+        :c.sheet==='reassign'?`
+          <div class="sheet"><h4>Hand this to someone else</h4>
+          <p>They get one claim card and have to accept it. Until they do, this stays yours — nothing is pushed onto anyone.</p>
+          <input class="reason" id="r-${c.id}" placeholder="Who should take it?" value="Arjun Menon">
+          <div class="btnrow"><button class="btn pri" onclick="confirmReassign('${c.id}')">Send the request</button>
+          <button class="btn" onclick="closeSheet('${c.id}')">Cancel</button></div></div>`
+        :`<div class="btnrow">
+            <button class="btn sm done" onclick="markDone('${c.id}')">Done</button>
+            <button class="btn sm reassigned" onclick="openSheet('${c.id}','reassign')">Reassign</button>
+            <button class="btn sm dropped" onclick="openSheet('${c.id}','drop')">Not doing this</button>
+            <button class="btn sm" onclick="markDone('${c.id}')" style="visibility:hidden">x</button>
+          </div>`}
+      </div>`).join('');
+
+    if(!openOnes.length) dl.innerHTML=`<div class="empty"><b>Nothing to ask you about.</b>
+      Every open commitment was either resolved from evidence or already closed by you.
+      <div class="btnrow" style="justify-content:center"><button class="btn pri" onclick="go('recap')">See next Tuesday's meeting →</button></div></div>`;
+
+    if(closed.length) dl.innerHTML += `<div style="margin-top:14px"><div class="panel-h">Closed by you just now</div>` +
+      closed.map(c=>`<div class="ccard"><div style="display:flex;gap:10px;justify-content:space-between;align-items:flex-start">
+        <div style="font-size:13.5px">${c.text}</div>${pill(c.state)}</div>
+        ${c.state==='dropped'?`<div class="dropnote">Closed honestly. ${c.reason?'You noted: “'+c.reason+'”. ':''}Everyone who was in that meeting can see it was dropped on purpose. No manager alert was sent.</div>`:''}
+        ${c.state==='reassigned'?`<div class="dropnote">Waiting for ${c.newOwner} to accept. It stays on your list until they do.</div>`:''}
+        ${c.state==='done'&&!c.evidence?`<div class="dropnote">Marked done by you. No corroborating signal was found in Slack, Jira or Drive — this one counts toward the performative-closure guardrail, not against you.</div>`:''}
+      </div>`).join('') + `</div>`;
+
+    if(!openOnes.length&&!closed.length&&!resolvedBySystem.length)
+      dl.innerHTML=`<div class="empty"><b>Claim something first.</b>Go to step 3 to see this digest fill up.</div>`;
+  }
+
+  /* screen 6 — recap */
+  const rl=document.getElementById('recapList');
+  if(rl){
+    const tracked=C.filter(c=>c.state!=='removed');
+    const settled=tracked.filter(c=>['done','dropped','reassigned'].includes(c.state));
+    const carried=tracked.filter(c=>['open','unowned','unclaimed'].includes(c.state));
+    rl.innerHTML = tracked.map(c=>`
+      <div class="ccard"><div style="display:flex;gap:10px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px;font-size:13.5px;${['done','dropped'].includes(c.state)?'color:var(--muted)':''}">${c.text}</div>${pill(c.state)}</div>
+        ${c.state==='dropped'?`<div class="dropnote">Settled last week. Nobody needs to raise this again.</div>`:''}
+        ${c.state==='unowned'?`<div class="dropnote">Still unowned. Surfaced here so the room can decide deliberately, rather than assuming someone has it.</div>`:''}
+      </div>`).join('');
+    document.getElementById('recapSummary').innerHTML =
+      `<b>${settled.length} of ${tracked.length} settled before this meeting started.</b> ` +
+      (carried.length?`Only ${carried.length} ${carried.length===1?'item needs':'items need'} airtime today — `
+                     :`Nothing carried over — `) +
+      `instead of re-reading last week's list and re-promising half of it.`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
